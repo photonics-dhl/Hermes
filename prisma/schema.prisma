@@ -352,7 +352,7 @@ model Patent {
   title     String
   number    String?  // patent number
   status    String?  // pending, granted, etc.
-  filingDate Date?
+  filingDate DateTime?
   groupId   String
   group     ResearchGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
