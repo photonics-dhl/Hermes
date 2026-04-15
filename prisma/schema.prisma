@@ -238,6 +238,7 @@ model Post {
   comments Comment[]
   votes    Vote[]
   tags     PostTag[]
+  linkedPublications PostPublication[]
 }
 
 model Comment {
@@ -321,19 +322,20 @@ model Publication {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  citations Citation[]
+  citedCitations Citation[] @relation("Cited")
+  citingCitations Citation[] @relation("Citing")
   linkedPosts PostPublication[]
 }
 
 model Citation {
   id                String  @id @default(cuid())
-  citingPublicationId String
   citedPublicationId String
+  citingPublicationId String
 
-  citingPublication Publication @relation("Citing", fields: [citingPublicationId], references: [id], onDelete: Cascade)
   citedPublication  Publication @relation("Cited", fields: [citedPublicationId], references: [id], onDelete: Cascade)
+  citingPublication Publication @relation("Citing", fields: [citingPublicationId], references: [id], onDelete: Cascade)
 
-  @@unique([citingPublicationId, citedPublicationId])
+  @@unique([citedPublicationId, citingPublicationId])
 }
 
 model News {
