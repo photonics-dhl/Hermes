@@ -116,7 +116,7 @@ pm2 monit
 
 ## 访问地址
 
-启动后访问：`http://10.72.212.33:3000`
+启动后访问：`http://10.72.212.33:3002`
 
 ---
 
@@ -130,7 +130,7 @@ pm2 monit
 DATABASE_URL="postgresql://dbuser:dbpass123@localhost:5432/scholars_tea?host=/data/home/zju321/pgdata/run"
 REDIS_URL="redis://localhost:6379"
 NEXTAUTH_SECRET="your-secret-change-in-production"
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3002"
 ```
 
 ### 修改环境变量后
