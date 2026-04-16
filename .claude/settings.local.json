@@ -83,7 +83,11 @@
       "mcp__github__search_repositories",
       "mcp__fetch__imageFetch",
       "mcp__image-generation__generate_image",
-      "mcp__diagram-generator__generate_diagram"
+      "mcp__diagram-generator__generate_diagram",
+      "Bash(npx prisma:*)",
+      "Bash(./node_modules/.bin/prisma format:*)",
+      "Bash(npm exec:*)",
+      "Bash(./node_modules/.bin/prisma validate:*)"
     ],
     "additionalDirectories": [
       "E:\\PostGraduate\\Science_softwares\\Claude_CLI\\.claude\\projects\\z--321-DHL-Scholar-s-Tea\\memory",
