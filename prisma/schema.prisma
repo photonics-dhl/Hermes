@@ -309,7 +309,7 @@ model Publication {
   // Semantic Scholar data
   semanticScholarId String?  @unique
   citationCount      Int      @default(0)
-  externalIds        Json?    // { arxiv: "...", pubmed: "..." }
+  externalIds        String?  // { arxiv: "...", pubmed: "..." }
 
   // Group relation
   groupId     String
