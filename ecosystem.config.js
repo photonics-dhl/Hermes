@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'scholars-tea',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3001',
+      args: 'start -p 3002',
       cwd: '/data/home/zju321/Scholar-s_Tea',
       instances: 1,
       autorestart: true,
@@ -14,7 +14,7 @@ module.exports = {
         DATABASE_URL: 'postgresql://dbuser:dbpass123@localhost:5432/scholars_tea?host=/data/home/zju321/pgdata/run',
         REDIS_URL: 'redis://localhost:6379',
         NEXTAUTH_SECRET: 'your-secret-change-in-production',
-        NEXTAUTH_URL: 'http://localhost:3001',
+        NEXTAUTH_URL: 'http://localhost:3002',
       },
     },
   ],
