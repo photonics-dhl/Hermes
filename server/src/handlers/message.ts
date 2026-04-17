@@ -1,56 +1,85 @@
 import { Server, Socket } from 'socket.io';
-import { PrismaClient } from '@prisma/client';
 
-export function registerMessageHandlers(io: Server, prisma: PrismaClient) {
+type QueryFunction = (text: string, params?: any[]) => Promise<any>;
+
+export function registerMessageHandlers(io: Server, query: QueryFunction) {
   io.on('connection', (socket: Socket) => {
     // Send message
-    socket.on('message:send', async (data: { roomId: string; content: string; type?: string }) => {
+    socket.on('message:send', async ({ roomId, content, type = 'TEXT' }: { roomId: string; content: string; type?: string }) => {
       try {
-        const { roomId, content, type = 'TEXT' } = data;
+        // Verify user is in the room
+        const participantResult = await query(
+          'SELECT 1 FROM "TeaPartyRoomParticipant" WHERE "roomId" =  AND "userId" = ',
+          [roomId, socket.data.user.id]
+        );
 
-        // Validate content
-        if (!content || content.trim().length === 0) {
-          socket.emit('room:error', { code: 'INVALID_CONTENT', message: '消息内容不能为空' });
-          return;
-        }
-
-        if (content.length > 500) {
-          socket.emit('room:error', { code: 'CONTENT_TOO_LONG', message: '消息不能超过500字符' });
-          return;
-        }
-
-        // Verify user is in room (check if socket has joined)
-        const rooms = Array.from(socket.rooms);
-        if (!rooms.includes(roomId)) {
-          socket.emit('room:error', { code: 'NOT_IN_ROOM', message: '请先加入房间' });
+        if (participantResult.rows.length === 0) {
+          socket.emit('message:error', { code: 'NOT_IN_ROOM', message: '请先加入房间' });
           return;
         }
 
         // Create message
-        const message = await prisma.message.create({
-          data: {
-            roomId,
-            userId: socket.data.user.id,
-            content: content.trim(),
-            type: type as 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM',
-          },
-          include: {
-            user: {
-              select: { id: true, name: true, avatar: true },
-            },
-          },
-        });
+        const messageResult = await query(
+          `INSERT INTO "Message" ("roomId", "userId", "content", "type", "createdAt")
+           VALUES (, , , , NOW())
+           RETURNING *`,
+          [roomId, socket.data.user.id, content, type]
+        );
+
+        const message = messageResult.rows[0];
 
         // Broadcast to room
         io.to(roomId).emit('message:received', {
           message: {
             ...message,
-            user: message.user,
+            user: {
+              id: socket.data.user.id,
+              name: socket.data.user.name,
+              avatar: null,
+            },
           },
         });
       } catch (error) {
         console.error('message:send error:', error);
-        socket.emit('room:error', { code: 'SERVER_ERROR', message: '发送消息失败' });
+        socket.emit('message:error', { code: 'SERVER_ERROR', message: '发送消息失败' });
+      }
+    });
+
+    // Get message history
+    socket.on('message:history', async ({ roomId, cursor, limit = 50 }: { roomId: string; cursor?: string; limit?: number }) => {
+      try {
+        const messagesResult = await query(
+          `SELECT m.*, u.id as user_id, u.name as user_name, u.avatar as user_avatar
+           FROM "Message" m
+           JOIN "User" u ON m."userId" = u.id
+           WHERE m."roomId" = 
+           ${cursor ? 'AND m.id < (SELECT id FROM "Message" WHERE id = )' : ''}
+           ORDER BY m."createdAt" DESC
+           LIMIT `,
+          cursor ? [roomId, cursor, limit + 1] : [roomId, limit + 1]
+        );
+
+        const hasMore = messagesResult.rows.length > limit;
+        const messages = hasMore ? messagesResult.rows.slice(0, limit) : messagesResult.rows;
+
+        // Reverse to get oldest first
+        messages.reverse();
+
+        socket.emit('message:history', {
+          messages: messages.map((m: any) => ({
+            ...m,
+            user: {
+              id: m.user_id,
+              name: m.user_name,
+              avatar: m.user_avatar,
+            },
+          })),
+          hasMore,
+          nextCursor: hasMore ? messages[messages.length - 1]?.id : null,
+        });
+      } catch (error) {
+        console.error('message:history error:', error);
+        socket.emit('message:error', { code: 'SERVER_ERROR', message: '获取消息历史失败' });
       }
     });
 
@@ -62,41 +91,6 @@ export function registerMessageHandlers(io: Server, prisma: PrismaClient) {
         roomId,
         isTyping,
       });
-    });
-
-    // Get message history
-    socket.on('message:history', async ({ roomId, cursor, limit = 50 }: { roomId: string; cursor?: string; limit?: number }) => {
-      try {
-        const messages = await prisma.message.findMany({
-          where: { roomId },
-          include: {
-            user: {
-              select: { id: true, name: true, avatar: true },
-            },
-          },
-          orderBy: { createdAt: 'desc' },
-          take: limit + 1,
-          ...(cursor && {
-            cursor: { id: cursor },
-            skip: 1,
-          }),
-        });
-
-        const hasMore = messages.length > limit;
-        const result = hasMore ? messages.slice(0, limit) : messages;
-
-        // Reverse to get chronological order
-        result.reverse();
-
-        socket.emit('message:history', {
-          messages: result,
-          hasMore,
-          nextCursor: hasMore ? result[result.length - 1]?.id : null,
-        });
-      } catch (error) {
-        console.error('message:history error:', error);
-        socket.emit('room:error', { code: 'SERVER_ERROR', message: '获取历史消息失败' });
-      }
     });
   });
 }

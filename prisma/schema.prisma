@@ -36,6 +36,8 @@ model User {
   teaPartyRooms TeaPartyRoomParticipant[]
   hostedRooms   TeaPartyRoom[] @relation("RoomHost")
   messages      Message[]
+  citations     CommunityCitation[] @relation("CitationUser")
+  verifiedCitations CommunityCitation[] @relation("CitationVerifier")
 }
 
 model Account {
@@ -150,6 +152,7 @@ model ResearchGroup {
   followers      User[]       @relation("UserFollows")
   disciplines    GroupDiscipline[]
   scoreHistory   ScoreHistory[]
+  citations      CommunityCitation[]
 }
 
 enum VerificationStatus {
@@ -239,6 +242,7 @@ model Post {
   votes    Vote[]
   tags     PostTag[]
   linkedPublications PostPublication[]
+  citations CommunityCitation[] @relation("PostCitations")
 }
 
 model Comment {
@@ -257,6 +261,7 @@ model Comment {
   children Comment[] @relation("CommentTree")
 
   votes Vote[]
+  citations CommunityCitation[] @relation("CommentCitations")
 }
 
 model Vote {
@@ -325,6 +330,7 @@ model Publication {
   citedCitations Citation[] @relation("Cited")
   citingCitations Citation[] @relation("Citing")
   linkedPosts PostPublication[]
+  communityCitations CommunityCitation[] @relation("PublicationCitations")
 }
 
 model Citation {
@@ -369,6 +375,43 @@ model PostPublication {
   publication Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
 
   @@id([postId, publicationId])
+}
+
+// ============================================
+// Community Citation (社区真实引用)
+// ============================================
+
+model CommunityCitation {
+  id            String   @id @default(cuid())
+  citingUserId   String
+  citingPostId  String?
+  citingCommentId String?
+  publicationId String
+  groupId       String
+  context       String?  @db.Text
+  status        CitationStatus @default(PENDING)
+  verifiedBy    String?
+  verifiedAt    DateTime?
+  rejectionNote String?
+  createdAt     DateTime @default(now())
+
+  citingUser   User        @relation("CitationUser", fields: [citingUserId], references: [id])
+  citingPost   Post?       @relation("PostCitations", fields: [citingPostId], references: [id], onDelete: SetNull)
+  citingComment Comment?   @relation("CommentCitations", fields: [citingCommentId], references: [id], onDelete: SetNull)
+  publication  Publication @relation("PublicationCitations", fields: [publicationId], references: [id])
+  group        ResearchGroup @relation(fields: [groupId], references: [id])
+  verifier     User?       @relation("CitationVerifier", fields: [verifiedBy], references: [id])
+
+  @@index([publicationId])
+  @@index([groupId])
+  @@index([citingUserId])
+  @@index([status])
+}
+
+enum CitationStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 // ============================================

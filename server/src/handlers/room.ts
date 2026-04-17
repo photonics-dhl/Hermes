@@ -1,51 +1,67 @@
 import { Server, Socket } from 'socket.io';
-import { PrismaClient } from '@prisma/client';
 
-export function registerRoomHandlers(io: Server, prisma: PrismaClient) {
+type QueryFunction = (text: string, params?: any[]) => Promise<any>;
+
+export function registerRoomHandlers(io: Server, query: QueryFunction) {
   io.on('connection', (socket: Socket) => {
     console.log(`User connected: ${socket.data.user.id}`);
 
     // Join room
     socket.on('room:join', async ({ roomId }: { roomId: string }) => {
       try {
-        // Check room exists and user can join
-        const room = await prisma.teaPartyRoom.findUnique({
-          where: { id: roomId },
-          include: {
-            _count: { select: { participants: true } },
-          },
-        });
+        // Check room exists
+        const roomResult = await query(
+          'SELECT r.*, (SELECT COUNT(*) FROM "TeaPartyRoomParticipant" WHERE "roomId" = r.id) as participant_count FROM "TeaPartyRoom" r WHERE r.id = ',
+          [roomId]
+        );
 
-        if (!room) {
+        if (roomResult.rows.length === 0) {
           socket.emit('room:error', { code: 'NOT_FOUND', message: '房间不存在' });
           return;
         }
 
-        if (room._count.participants >= room.maxParticipants) {
+        const room = roomResult.rows[0];
+
+        if (parseInt(room.participant_count) >= room.maxParticipants) {
           socket.emit('room:error', { code: 'ROOM_FULL', message: '房间已满' });
           return;
         }
 
         // Add participant if not exists
-        await prisma.teaPartyRoomParticipant.upsert({
-          where: {
-            roomId_userId: { roomId, userId: socket.data.user.id },
-          },
-          create: { roomId, userId: socket.data.user.id },
-          update: {},
-        });
+        await query(
+          `INSERT INTO "TeaPartyRoomParticipant" ("roomId", "userId", "joinedAt")
+           VALUES (, , NOW())
+           ON CONFLICT ("roomId", "userId") DO UPDATE SET "joinedAt" = NOW()`,
+          [roomId, socket.data.user.id]
+        );
 
         // Join socket room
         await socket.join(roomId);
 
-        // Get room details with participants
-        const roomDetail = await getRoomDetail(prisma, roomId);
-        const participants = await getRoomParticipants(prisma, roomId);
+        // Get room details
+        const roomDetail = {
+          id: room.id,
+          name: room.name,
+          description: room.description,
+          isPublic: room.isPublic,
+          maxParticipants: room.maxParticipants,
+          hostId: room.hostId,
+          createdAt: room.createdAt,
+        };
+
+        // Get participants
+        const participantsResult = await query(
+          `SELECT u.id, u.name, u.avatar FROM "TeaPartyRoomParticipant" p
+           JOIN "User" u ON p."userId" = u.id
+           WHERE p."roomId" = 
+           LIMIT 50`,
+          [roomId]
+        );
 
         // Notify user they joined
         socket.emit('room:joined', {
           room: roomDetail,
-          users: participants,
+          users: participantsResult.rows,
         });
 
         // Notify others
@@ -58,19 +74,17 @@ export function registerRoomHandlers(io: Server, prisma: PrismaClient) {
         });
 
         // Create system message
-        const systemMessage = await prisma.message.create({
-          data: {
-            roomId,
-            userId: socket.data.user.id,
-            content: `${socket.data.user.name || '用户'} 加入了房间`,
-            type: 'SYSTEM',
-          },
-        });
+        const systemMsgResult = await query(
+          `INSERT INTO "Message" ("roomId", "userId", "content", "type", "createdAt")
+           VALUES (, , , , NOW())
+           RETURNING *`,
+          [roomId, socket.data.user.id, `${socket.data.user.name || '用户'} 加入了房间`, 'SYSTEM']
+        );
 
         // Broadcast system message
         io.to(roomId).emit('message:received', {
           message: {
-            ...systemMessage,
+            ...systemMsgResult.rows[0],
             user: {
               id: socket.data.user.id,
               name: socket.data.user.name,
@@ -90,9 +104,10 @@ export function registerRoomHandlers(io: Server, prisma: PrismaClient) {
         await socket.leave(roomId);
 
         // Remove participant
-        await prisma.teaPartyRoomParticipant.deleteMany({
-          where: { roomId, userId: socket.data.user.id },
-        });
+        await query(
+          'DELETE FROM "TeaPartyRoomParticipant" WHERE "roomId" =  AND "userId" = ',
+          [roomId, socket.data.user.id]
+        );
 
         // Notify others
         socket.to(roomId).emit('room:user_left', {
@@ -101,19 +116,17 @@ export function registerRoomHandlers(io: Server, prisma: PrismaClient) {
         });
 
         // Create system message
-        const systemMessage = await prisma.message.create({
-          data: {
-            roomId,
-            userId: socket.data.user.id,
-            content: `${socket.data.user.name || '用户'} 离开了房间`,
-            type: 'SYSTEM',
-          },
-        });
+        const systemMsgResult = await query(
+          `INSERT INTO "Message" ("roomId", "userId", "content", "type", "createdAt")
+           VALUES (, , , , NOW())
+           RETURNING *`,
+          [roomId, socket.data.user.id, `${socket.data.user.name || '用户'} 离开了房间`, 'SYSTEM']
+        );
 
         // Broadcast system message
         io.to(roomId).emit('message:received', {
           message: {
-            ...systemMessage,
+            ...systemMsgResult.rows[0],
             user: {
               id: socket.data.user.id,
               name: socket.data.user.name,
@@ -129,35 +142,6 @@ export function registerRoomHandlers(io: Server, prisma: PrismaClient) {
     // Disconnect
     socket.on('disconnect', async () => {
       console.log(`User disconnected: ${socket.data.user.id}`);
-      // Note: We don't auto-leave rooms on disconnect to preserve chat history
     });
   });
-}
-
-async function getRoomDetail(prisma: PrismaClient, roomId: string) {
-  return prisma.teaPartyRoom.findUnique({
-    where: { id: roomId },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      isPublic: true,
-      maxParticipants: true,
-      hostId: true,
-      createdAt: true,
-    },
-  });
-}
-
-async function getRoomParticipants(prisma: PrismaClient, roomId: string) {
-  const participants = await prisma.teaPartyRoomParticipant.findMany({
-    where: { roomId },
-    include: {
-      user: {
-        select: { id: true, name: true, avatar: true },
-      },
-    },
-    take: 50,
-  });
-  return participants.map((p: { user: { id: string; name: string | null; avatar: string | null } }) => p.user);
 }

@@ -1,12 +1,9 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { PrismaClient } from '@prisma/client';
 import { verifyToken } from './middleware/auth.js';
 import { registerRoomHandlers } from './handlers/room.js';
 import { registerMessageHandlers } from './handlers/message.js';
-
-// Initialize Prisma
-export const prisma = new PrismaClient();
+import { query } from './db.js';
 
 // Create HTTP server
 const httpServer = createServer();
@@ -14,48 +11,43 @@ const httpServer = createServer();
 // Create Socket.io server
 const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:3002', 'http://localhost:3000'],
+    origin: ['http://localhost:3002', 'http://localhost:3000', 'http://10.72.212.33:3002'],
     methods: ['GET', 'POST'],
     credentials: true,
   },
-  transports: ['websocket', 'polling'],
 });
 
-// Authentication middleware
+// Authenticate socket connections
 io.use(async (socket, next) => {
   try {
-    const token = socket.handshake.auth.token;
+    const token = socket.handshake.auth.token || socket.handshake.query.token;
     if (!token) {
       return next(new Error('Authentication required'));
     }
-
-    const decoded = await verifyToken(token);
-    if (!decoded) {
+    const user = await verifyToken(token);
+    if (!user) {
       return next(new Error('Invalid token'));
     }
-
-    socket.data.user = decoded;
+    socket.data.user = user;
     next();
   } catch (error) {
-    console.error('Socket auth error:', error);
     next(new Error('Authentication failed'));
   }
 });
 
-// Register event handlers
-registerRoomHandlers(io, prisma);
-registerMessageHandlers(io, prisma);
+// Register handlers
+registerRoomHandlers(io, query);
+registerMessageHandlers(io, query);
 
 // Start server
-const PORT = process.env.PORT || 3001;
-
-httpServer.listen(PORT, () => {
+const PORT = process.env.SOCKET_PORT || 3001;
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`Socket.io server running on port ${PORT}`);
 });
 
-// Cleanup on shutdown
+// Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('Shutting down...');
-  await prisma.$disconnect();
-  httpServer.close();
+  console.log('SIGTERM received, shutting down...');
+  await new Promise(resolve => setTimeout(resolve, 100));
+  process.exit(0);
 });
