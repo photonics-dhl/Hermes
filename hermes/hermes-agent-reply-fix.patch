@@ -1,0 +1,41 @@
+diff --git a/gateway/run.py b/gateway/run.py
+index 68efed9..7706784 100644
+--- a/gateway/run.py
++++ b/gateway/run.py
+@@ -7994,6 +7994,7 @@ class GatewayRunner:
+                         chat_id=source.chat_id,
+                         config=_consumer_cfg,
+                         metadata=_thread_metadata,
++                        reply_to_id=event_message_id,
+                     )
+             except Exception as _sc_err:
+                 logger.debug("Proxy: could not set up stream consumer: %s", _sc_err)
+@@ -8565,6 +8566,7 @@ class GatewayRunner:
+                             chat_id=source.chat_id,
+                             config=_consumer_cfg,
+                             metadata={"thread_id": _progress_thread_id} if _progress_thread_id else None,
++                            reply_to_id=event_message_id,
+                         )
+                         if _want_stream_deltas:
+                             _stream_delta_cb = _stream_consumer.on_delta
+diff --git a/gateway/stream_consumer.py b/gateway/stream_consumer.py
+index 853b159..b3cb871 100644
+--- a/gateway/stream_consumer.py
++++ b/gateway/stream_consumer.py
+@@ -82,6 +82,7 @@ class GatewayStreamConsumer:
+         chat_id: str,
+         config: Optional[StreamConsumerConfig] = None,
+         metadata: Optional[dict] = None,
++        reply_to_id: Optional[str] = None,
+     ):
+         self.adapter = adapter
+         self.chat_id = chat_id
+@@ -89,7 +90,7 @@ class GatewayStreamConsumer:
+         self.metadata = metadata
+         self._queue: queue.Queue = queue.Queue()
+         self._accumulated = ""
+-        self._message_id: Optional[str] = None
++        self._message_id: Optional[str] = reply_to_id
+         self._already_sent = False
+         self._edit_supported = True  # Disabled when progressive edits are no longer usable
+         self._last_edit_time = 0.0
