@@ -4,8 +4,12 @@
 
 set -e
 
-APP_DIR="/data/home/zju321/Scholar-s_Tea"
-PG_DIR="/data/home/zju321/pgdata"
+# Resolve project root (scripts/ -> project root)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+APP_DIR="${APP_DIR:-$PROJECT_ROOT}"
+PG_DIR="${PG_DIR:-${DATA_DIR:-/data/home/zju321/pgdata}}"
 LOG_FILE="$APP_DIR/logs/startup.log"
 
 mkdir -p "$APP_DIR/logs"

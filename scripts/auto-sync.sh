@@ -5,8 +5,12 @@
 
 set -e
 
-APP_DIR="/data/home/zju321/Scholar-s_Tea"
-LOG_FILE="$APP_DIR/logs/sync.log"
+# Resolve project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+APP_DIR="${APP_DIR:-$PROJECT_ROOT}"
+GITHUB_REPO="https://github.com/photonics-dhl/Scholar-s-tea"
 
 # GitHub 配置（从 .env 环境变量读取）
 GITHUB_REPO="https://github.com/photonics-dhl/Scholar-s-tea"
