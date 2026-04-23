@@ -4,6 +4,9 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GroupHeader } from '@/components/features/groups/GroupHeader';
 import { GroupMemberList } from '@/components/features/groups/GroupMemberList';
+import { PublicationsList } from '@/components/features/groups/PublicationsList';
+import { NewsList } from '@/components/features/groups/NewsList';
+import { PatentsList } from '@/components/features/groups/PatentsList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -118,21 +121,15 @@ export default function GroupDetailPage({ params }: GroupDetailPageProps) {
           </TabsContent>
 
           <TabsContent value="publications" className="mt-6">
-            <div className="text-center text-muted-foreground py-8">
-              暂无论文
-            </div>
+            <PublicationsList groupId={group.id} />
           </TabsContent>
 
           <TabsContent value="news" className="mt-6">
-            <div className="text-center text-muted-foreground py-8">
-              暂无动态
-            </div>
+            <NewsList groupId={group.id} />
           </TabsContent>
 
           <TabsContent value="patents" className="mt-6">
-            <div className="text-center text-muted-foreground py-8">
-              暂无专利
-            </div>
+            <PatentsList groupId={group.id} />
           </TabsContent>
 
           <TabsContent value="members" className="mt-6">
