@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronRight, Users, FileText, BookOpen } from 'lucide-react';
+import { ChevronRight, Users, FileText, BookOpen, MessageSquare, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -59,6 +59,25 @@ interface Discipline {
   };
 }
 
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  author: {
+    id: string;
+    name: string | null;
+    avatar: string | null;
+  };
+  isPinned: boolean;
+  isLocked: boolean;
+  viewCount: number;
+  createdAt: string;
+  score: number;
+  _count: {
+    comments: number;
+  };
+}
+
 interface DisciplinePageProps {
   params: Promise<{ slug: string }>;
 }
@@ -67,7 +86,9 @@ export default function DisciplineDetailPage({ params }: DisciplinePageProps) {
   const { slug } = use(params);
   const router = useRouter();
   const [discipline, setDiscipline] = useState<Discipline | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(false);
 
   useEffect(() => {
     const fetchDiscipline = async () => {
@@ -89,6 +110,28 @@ export default function DisciplineDetailPage({ params }: DisciplinePageProps) {
 
     fetchDiscipline();
   }, [slug, router]);
+
+  const fetchPosts = async () => {
+    if (!discipline) return;
+    setPostsLoading(true);
+    try {
+      const res = await fetch(`/api/v1/posts?disciplineId=${discipline.id}&pageSize=10`);
+      const data = await res.json();
+      if (data.success) {
+        setPosts(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch posts:', err);
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
+  const handleTabChange = (value: string) => {
+    if (value === 'posts' && posts.length === 0) {
+      fetchPosts();
+    }
+  };
 
   if (loading) {
     return (
@@ -186,7 +229,7 @@ export default function DisciplineDetailPage({ params }: DisciplinePageProps) {
       )}
 
       {/* Tabs: Groups & Posts */}
-      <Tabs defaultValue="groups">
+      <Tabs defaultValue="groups" onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="groups">
             课题组 ({discipline._count.groups})
@@ -223,9 +266,62 @@ export default function DisciplineDetailPage({ params }: DisciplinePageProps) {
         </TabsContent>
 
         <TabsContent value="posts" className="mt-6">
-          <div className="text-center py-8 text-muted-foreground">
-            暂无帖子
-          </div>
+          {postsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          ) : posts.length > 0 ? (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/disciplines/${slug}/posts/${post.id}`}
+                  className="block"
+                >
+                  <article className="rounded-lg border p-4 hover:bg-accent transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      {post.isPinned && (
+                        <Badge variant="default" className="text-xs">置顶</Badge>
+                      )}
+                      {post.isLocked && (
+                        <Badge variant="secondary" className="text-xs">锁定</Badge>
+                      )}
+                    </div>
+                    <h3 className="font-semibold mb-2 line-clamp-1">{post.title}</h3>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{post.author.name || '匿名用户'}</span>
+                      <span className="flex items-center gap-1">
+                        <MessageSquare className="h-4 w-4" />
+                        {post._count.comments}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        {post.viewCount}
+                      </span>
+                      <span>{new Date(post.createdAt).toLocaleDateString('zh-CN')}</span>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+              <div className="text-center pt-4">
+                <Button variant="outline" asChild>
+                  <Link href={`/disciplines/${slug}/posts`}>
+                    查看全部帖子
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>暂无帖子</p>
+              <Button variant="link" asChild className="mt-2">
+                <Link href={`/disciplines/${slug}/posts/new`}>成为第一个发帖的人</Link>
+              </Button>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
