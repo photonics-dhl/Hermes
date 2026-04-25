@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db/prisma';
+import { CitationStatus } from '@prisma/client';
 
 // GET /api/v1/citations/pending - List pending citations for verification
 export async function GET(request: NextRequest) {
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
     const page = searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1;
     const pageSize = searchParams.get('pageSize') ? parseInt(searchParams.get('pageSize')!) : 20;
 
-    const where = { status: 'PENDING' };
+    const where = { status: CitationStatus.PENDING };
 
     const [total, citations] = await Promise.all([
       prisma.communityCitation.count({ where }),

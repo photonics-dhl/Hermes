@@ -445,7 +445,7 @@ export async function getGroupNews(groupId: string, params: { page?: number; pag
 
 export async function createNews(groupId: string, data: {
   title: string;
-  content?: string;
+  content: string;
   coverImage?: string;
 }) {
   const { title, content, coverImage } = data;

@@ -136,7 +136,7 @@ export function extractPotentialCitations(text: string): string[] {
     citations.push(...doiMatches);
   }
 
-  return [...new Set(citations)];
+  return Array.from(new Set(citations));
 }
 
 /**
