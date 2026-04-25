@@ -62,6 +62,13 @@ Scholar's_Tea/
 
 ## 开发规范
 
+### 服务器文件架构（强制）
+
+**安装/下载必须分类存放，禁止在 `$HOME` 根目录散落文件**：
+- 第三方软件 → `~/softwares/<category>/`
+- 文档资料 → `~/docs/<category>/`
+- 下载后立即删除 `.tar.gz`、`.zip` 等安装包
+
 ### Git 工作流
 
 - **分支命名**:
@@ -335,8 +342,51 @@ type TeaPartyEvent =
 
 ---
 
-## 参考资源
+## 记忆管理体系（2026-04-20）
+
+本项目采用 **Claude Code 层级记忆法**，三层分离，各司其职：
+
+### 三层记忆架构
+
+| 层级 | 存储位置 | 内容类型 | 示例 |
+|------|---------|---------|------|
+| **Skills** | `~/.hermes/skills/` | 已知好的 SOP / 工具流程 | 发卡流程、Tavily MCP 配置 |
+| **Project Memory** | `CLAUDE.md`（本文件） | 项目特定事实 / 坑记录 | 关键词陷阱、子卡片结构 |
+| **Global Memory** | `memory` 工具 | 环境路径 / 凭证 / Bug | Cloudflare 凭证、代理端口 |
+
+### 写入规则
+
+```
+新学到的知识 → 立即判断类型并写入正确层级：
+  · 工具 Bug / workaround       → memory
+  · 环境路径 / 凭证 / 端口      → memory
+  · 工作流程 SOP（跨项目）      → skills
+  · 项目特定事实 / 踩坑记录     → 本文件（CLAUDE.md）
+  · 已完成任务 / 临时状态       → 不存储
+```
+
+### 禁止事项
+
+- **不重复**：skills / CLAUDE.md 里已有的内容，不要再写入 memory
+- **不堆积**：memory 超过 2,200 字符 → 立即整理（条目迁移到 skills 或 CLAUDE.md）
+- **不遗忘**：新学到的关键事实 → 当次 session 内写入，不要等 compaction
+
+### 参考资源
 
 - **plan.md**: 完整功能规划文档
 - **设计参考**: GitHub (组织页面), cc98 (论坛), Discord (实时)
 - **架构参考**: Onyx (AI+RAG), Hermes Agent (自学习)
+
+---
+
+## Verification（任务完成标准）
+
+每个任务完成后必须通过以下检查：
+
+| 任务类型 | 验收条件 |
+|---------|---------|
+| **API 任务** | `npm run lint` + `npm run typecheck` 通过，响应格式符合统一规范 |
+| **前端任务** | `npm run lint` + `npm run typecheck` 通过，无 console.error |
+| **数据库任务** | `npx prisma validate` + `npx prisma migrate --dry-run` 通过 |
+| **AI/RAG 任务** | 输出符合预期，无 credential 暴露，API key 仅通过 env 获取 |
+| **配置变更** | 无硬编码凭证，settings.local.json 不在 git 历史中 |

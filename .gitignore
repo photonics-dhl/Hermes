@@ -49,3 +49,7 @@ uploads/
 *.log
 logs/
 .mcp.json
+
+# Claude Code local settings (contain credentials)
+.claude/settings.local.json
+settings.local.json

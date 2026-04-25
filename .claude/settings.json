@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "mode": "relaxed",
     "allow": [
       "Bash(ssh -i \"C:/Users/Mac/.ssh/id_ed25519_scholars_tea\" -o StrictHostKeyChecking=no -o ConnectTimeout=30 zju321@10.72.212.33 \"echo 'Reconnected' && hostname\")",
       "Bash(ssh -i \"C:/Users/Mac/.ssh/id_ed25519_scholars_tea\" -o StrictHostKeyChecking=no -o ConnectTimeout=60 zju321@10.72.212.33 \"hostname && uptime\")",
@@ -61,8 +60,35 @@
       "Glob(/data/home/zju321/321/DHL/**)",
       "Bash(ls -la /data/home/zju321/321/DHL/Scholar's_Tea/**)",
       "Bash(ls -la /data/home/zju321/.claude/**)",
-      "Bash(find /data/home/zju321/321/DHL/Scholar's_Tea -type f -name \"*.md\")"
-    ]
+      "Bash(find /data/home/zju321/321/DHL/Scholar's_Tea -type f -name \"*.md\")",
+      "MCP *",
+      "WebSearch",
+      "WebFetch",
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Agent",
+      "TaskOutput",
+      "TaskStop",
+      "ExitPlanMode",
+      "ExitWorktree",
+      "EnterPlanMode",
+      "EnterWorktree",
+      "NotebookEdit",
+      "TodoWrite",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "ScheduleWakeup",
+      "AskUserQuestion",
+      "Skill",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__list_directory"
+    ],
+    "mode": "bypassPermissions"
   },
   "hooks": {
     "PreToolUse": [
@@ -73,6 +99,17 @@
             "type": "command",
             "command": "./.claude/hooks/pre-command-hook.sh",
             "timeout": 30,
+            "once": false
+          }
+        ]
+      },
+      {
+        "matcher": "Bash(git commit:*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/pre-commit-hook.sh",
+            "timeout": 60,
             "once": false
           }
         ]
@@ -98,6 +135,18 @@
             "type": "command",
             "command": "./.claude/hooks/session-end-hook.sh",
             "timeout": 60,
+            "once": false
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 【Scholar's Tea】三层记忆写入规则: 工具Bug→memory | SOP→skills | 项目特定→CLAUDE.md | Verification: API→lint+typecheck | 前端→lint+typecheck | DB→prisma validate",
+            "timeout": 5,
             "once": false
           }
         ]
