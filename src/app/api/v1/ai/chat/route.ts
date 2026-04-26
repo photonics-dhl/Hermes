@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth';
 import { chatWithAI, chatWithContext, analyzePaper, suggestResearchDirections } from '@/lib/ai/claude-service';
+import { getContextForQuery } from '@/lib/ai/rag-service';
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     const body = await request.json();
 
-    const { messages, action, context } = body as {
+    const { messages, action, context, useRag } = body as {
       messages?: ChatMessage[];
       action?: 'analyze' | 'suggest';
       context?: {
@@ -25,6 +26,7 @@ export async function POST(request: NextRequest) {
           year?: number;
         }>;
       };
+      useRag?: boolean;
     };
 
     // Handle different AI actions
@@ -58,9 +60,33 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Enhance with RAG context if enabled
+    let enhancedMessages = messages;
+    let ragContext = null;
+
+    if (useRag && messages.length > 0) {
+      const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
+      if (lastUserMessage) {
+        const { context: ragContextText, sources } = await getContextForQuery(lastUserMessage.content);
+        if (ragContextText) {
+          ragContext = sources;
+          const ragEnhancedMessages = messages.map(m => {
+            if (m.role === 'user') {
+              return {
+                ...m,
+                content: `${m.content}\n\n【相关知识背景】\n${ragContextText}`,
+              };
+            }
+            return m;
+          });
+          enhancedMessages = ragEnhancedMessages;
+        }
+      }
+    }
+
     const result = context
-      ? await chatWithContext(messages, context)
-      : await chatWithAI(messages);
+      ? await chatWithContext(enhancedMessages, context)
+      : await chatWithAI(enhancedMessages);
 
     if (result.error) {
       return NextResponse.json({
@@ -72,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: { content: result.content },
+      data: { content: result.content, ragContext },
       meta: null,
     });
   } catch (error) {

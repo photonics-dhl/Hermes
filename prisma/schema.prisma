@@ -513,3 +513,52 @@ model QuestionVote {
 
   @@unique([questionId, userId])
 }
+
+// ============================================
+// RAG Knowledge Base
+// ============================================
+
+model KnowledgeDocument {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  source      String?  //论文、帖子、新闻等
+  sourceId    String?  //关联的源记录ID
+  discipline  String?  //学科领域
+  authorId    String?
+  embedding   Json?    // OpenAI text-embedding-3-small embeddings array
+  metadata    Json?    // 额外元数据
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([discipline])
+  @@index([source])
+}
+
+model ResearchMemory {
+  id          String   @id @default(cuid())
+  type        MemoryType
+  title       String
+  content     String   @db.Text
+  summary     String?  @db.Text
+  embedding   Json     // OpenAI text-embedding-3-small embeddings array
+  discipline  String?
+  userId      String?
+  relatedPaper String?
+  tags        String[]
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type])
+  @@index([discipline])
+  @@index([userId])
+}
+
+enum MemoryType {
+  IDEA           // 研究想法
+  PAPER_SUMMARY  // 论文摘要
+  DISCUSSION     // 讨论记录
+  QUESTION      // 问题记录
+  NOTES         // 笔记
+}
