@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, BookOpen, Users } from 'lucide-react';
+import { ChevronRight, BookOpen, Users, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface Discipline {
   id: string;
@@ -17,6 +18,87 @@ interface Discipline {
     groups: number;
   };
   children?: Discipline[];
+}
+
+function DisciplineCard({ discipline }: { discipline: Discipline }) {
+  return (
+    <Card className="group hover:shadow-md transition-all duration-200 overflow-hidden">
+      <CardContent className="p-0">
+        {/* Header */}
+        <div className="p-5 border-b bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="flex items-start justify-between gap-4">
+            <Link
+              href={`/disciplines/${discipline.slug}`}
+              className="flex-1 min-w-0 group/title"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 group-hover/title:bg-primary/20 transition-colors">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                </div>
+                <h2 className="text-lg font-semibold truncate group-hover/title:text-primary transition-colors">
+                  {discipline.name}
+                </h2>
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover/title:opacity-100 transition-opacity flex-shrink-0" />
+              </div>
+              {discipline.description && (
+                <p className="mt-2 text-sm text-muted-foreground line-clamp-2 pl-11">
+                  {discipline.description}
+                </p>
+              )}
+            </Link>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="px-5 py-3 flex items-center gap-6 text-sm text-muted-foreground bg-muted/30">
+          <div className="flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5" />
+            <span>{discipline._count.groups} 课题组</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <MessageSquare className="h-3.5 w-3.5" />
+            <span>{discipline._count.posts} 帖子</span>
+          </div>
+        </div>
+
+        {/* Children */}
+        {discipline.children && discipline.children.length > 0 && (
+          <div className="px-5 py-4 border-t">
+            <div className="flex flex-wrap gap-2">
+              {discipline.children.map((child) => (
+                <Link
+                  key={child.id}
+                  href={`/disciplines/${child.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-sm border hover:border-primary hover:text-primary transition-colors"
+                >
+                  <span className="truncate max-w-[120px]">{child.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {child._count.groups}组
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function DisciplinePageSkeleton() {
+  return (
+    <div className="container mx-auto py-8 space-y-6">
+      <div className="space-y-2">
+        <Skeleton className="h-9 w-48" />
+        <Skeleton className="h-5 w-72" />
+      </div>
+      <div className="grid gap-4">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-40 w-full" />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function DisciplinesPage() {
@@ -35,93 +117,37 @@ export default function DisciplinesPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-8">学科社区</h1>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))}
-        </div>
-      </div>
-    );
+    return <DisciplinePageSkeleton />;
   }
 
   return (
     <div className="container mx-auto py-8">
+      {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">学科社区</h1>
-        <p className="mt-1 text-muted-foreground">
-          探索不同学科领域 · 共 {disciplines.length} 个一级学科
+        <h1 className="text-3xl font-bold tracking-tight">学科社区</h1>
+        <p className="mt-2 text-muted-foreground">
+          探索不同学科领域，与学者们交流思想 · 共{' '}
+          <span className="font-medium text-foreground">{disciplines.length}</span>{' '}
+          个一级学科
         </p>
       </div>
 
-      <div className="space-y-6">
-        {disciplines.map((discipline) => (
-          <div key={discipline.id} className="rounded-lg border">
-            {/* Level 0: Primary Discipline */}
-            <div className="p-4">
-              <div className="flex items-center justify-between">
-                <Link
-                  href={`/disciplines/${discipline.slug}`}
-                  className="flex items-center gap-3 hover:text-primary"
-                >
-                  <BookOpen className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-semibold">{discipline.name}</h2>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>{discipline._count.groups} 课题组</span>
-                  <span>{discipline._count.posts} 帖子</span>
-                </div>
-              </div>
-              {discipline.description && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {discipline.description}
-                </p>
-              )}
-            </div>
-
-            {/* Level 1: Secondary Disciplines */}
-            {discipline.children && discipline.children.length > 0 && (
-              <div className="border-t bg-muted/30 p-4">
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                  {discipline.children.map((child) => (
-                    <Link
-                      key={child.id}
-                      href={`/disciplines/${child.slug}`}
-                      className="rounded-md bg-background p-3 hover:bg-accent"
-                    >
-                      <h3 className="font-medium text-sm">{child.name}</h3>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{child._count.groups} 组</span>
-                        <span>·</span>
-                        <span>{child._count.posts} 帖</span>
-                      </div>
-
-                      {/* Level 2: Research Directions */}
-                      {child.children && child.children.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {child.children.slice(0, 3).map((grandchild) => (
-                            <Badge key={grandchild.id} variant="secondary" className="text-xs">
-                              {grandchild.name}
-                            </Badge>
-                          ))}
-                          {child.children.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{child.children.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {/* Disciplines Grid */}
+      {disciplines.length > 0 ? (
+        <div className="grid gap-4">
+          {disciplines.map((discipline) => (
+            <DisciplineCard key={discipline.id} discipline={discipline} />
+          ))}
+        </div>
+      ) : (
+        <Card className="p-12 text-center">
+          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/50" />
+          <h3 className="mt-4 font-medium">暂无学科</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            敬请期待，即将上线
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

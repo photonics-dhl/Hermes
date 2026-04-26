@@ -1,17 +1,19 @@
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: {
-    default: "Scholar's Tea - 学者茶话会",
-    template: "%s | Scholar's Tea",
-  },
-  description: '高校学术交流社区平台，支持课题组管理、学科社区、实时茶话会（Tea Party）和 AI 思想工坊。',
-};
+import { MainNav } from '@/components/layout/MainNav';
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <div className="min-h-screen flex flex-col">
+      <MainNav />
+      <main className="flex-1">{children}</main>
+      <footer className="border-t py-6">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>Scholar&apos;s Tea 学者茶话会 · 高校学术交流社区</p>
+        </div>
+      </footer>
+    </div>
+  );
 }
