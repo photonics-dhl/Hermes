@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { GraduationCap, Users, MessageCircle, Trophy, Menu, X, LogOut } from 'lucide-react';
+import { GraduationCap, Users, MessageCircle, Trophy, Menu, X, LogOut, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -18,6 +18,7 @@ import {
 const navItems = [
   { href: '/disciplines', label: '学科', icon: GraduationCap },
   { href: '/groups', label: '课题组', icon: Users },
+  { href: '/workshop', label: '思想工坊', icon: Sparkles },
   { href: '/tea-party', label: '茶话会', icon: MessageCircle },
   { href: '/top-questions', label: 'TOP10', icon: Trophy },
 ];
