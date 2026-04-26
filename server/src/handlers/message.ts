@@ -9,7 +9,7 @@ export function registerMessageHandlers(io: Server, query: QueryFunction) {
       try {
         // Verify user is in the room
         const participantResult = await query(
-          'SELECT 1 FROM "TeaPartyRoomParticipant" WHERE "roomId" =  AND "userId" = ',
+          'SELECT 1 FROM "TeaPartyRoomParticipant" WHERE "roomId" = $1 AND "userId" = $2',
           [roomId, socket.data.user.id]
         );
 
@@ -21,7 +21,7 @@ export function registerMessageHandlers(io: Server, query: QueryFunction) {
         // Create message
         const messageResult = await query(
           `INSERT INTO "Message" ("roomId", "userId", "content", "type", "createdAt")
-           VALUES (, , , , NOW())
+           VALUES ($1, $2, $3, $4, NOW())
            RETURNING *`,
           [roomId, socket.data.user.id, content, type]
         );
@@ -48,16 +48,28 @@ export function registerMessageHandlers(io: Server, query: QueryFunction) {
     // Get message history
     socket.on('message:history', async ({ roomId, cursor, limit = 50 }: { roomId: string; cursor?: string; limit?: number }) => {
       try {
-        const messagesResult = await query(
-          `SELECT m.*, u.id as user_id, u.name as user_name, u.avatar as user_avatar
+        let queryText: string;
+        let queryParams: any[];
+
+        if (cursor) {
+          queryText = `SELECT m.*, u.id as user_id, u.name as user_name, u.avatar as user_avatar
            FROM "Message" m
            JOIN "User" u ON m."userId" = u.id
-           WHERE m."roomId" = 
-           ${cursor ? 'AND m.id < (SELECT id FROM "Message" WHERE id = )' : ''}
+           WHERE m."roomId" = $1 AND m.id < $2
            ORDER BY m."createdAt" DESC
-           LIMIT `,
-          cursor ? [roomId, cursor, limit + 1] : [roomId, limit + 1]
-        );
+           LIMIT $3`;
+          queryParams = [roomId, cursor, limit + 1];
+        } else {
+          queryText = `SELECT m.*, u.id as user_id, u.name as user_name, u.avatar as user_avatar
+           FROM "Message" m
+           JOIN "User" u ON m."userId" = u.id
+           WHERE m."roomId" = $1
+           ORDER BY m."createdAt" DESC
+           LIMIT $2`;
+          queryParams = [roomId, limit + 1];
+        }
+
+        const messagesResult = await query(queryText, queryParams);
 
         const hasMore = messagesResult.rows.length > limit;
         const messages = hasMore ? messagesResult.rows.slice(0, limit) : messagesResult.rows;

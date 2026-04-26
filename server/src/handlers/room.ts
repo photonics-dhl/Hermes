@@ -11,7 +11,7 @@ export function registerRoomHandlers(io: Server, query: QueryFunction) {
       try {
         // Check room exists
         const roomResult = await query(
-          'SELECT r.*, (SELECT COUNT(*) FROM "TeaPartyRoomParticipant" WHERE "roomId" = r.id) as participant_count FROM "TeaPartyRoom" r WHERE r.id = ',
+          'SELECT r.*, (SELECT COUNT(*) FROM "TeaPartyRoomParticipant" WHERE "roomId" = r.id) as participant_count FROM "TeaPartyRoom" r WHERE r.id = $1',
           [roomId]
         );
 
@@ -30,7 +30,7 @@ export function registerRoomHandlers(io: Server, query: QueryFunction) {
         // Add participant if not exists
         await query(
           `INSERT INTO "TeaPartyRoomParticipant" ("roomId", "userId", "joinedAt")
-           VALUES (, , NOW())
+           VALUES ($1, $2, NOW())
            ON CONFLICT ("roomId", "userId") DO UPDATE SET "joinedAt" = NOW()`,
           [roomId, socket.data.user.id]
         );
@@ -53,7 +53,7 @@ export function registerRoomHandlers(io: Server, query: QueryFunction) {
         const participantsResult = await query(
           `SELECT u.id, u.name, u.avatar FROM "TeaPartyRoomParticipant" p
            JOIN "User" u ON p."userId" = u.id
-           WHERE p."roomId" = 
+           WHERE p."roomId" = $1
            LIMIT 50`,
           [roomId]
         );
@@ -76,7 +76,7 @@ export function registerRoomHandlers(io: Server, query: QueryFunction) {
         // Create system message
         const systemMsgResult = await query(
           `INSERT INTO "Message" ("roomId", "userId", "content", "type", "createdAt")
-           VALUES (, , , , NOW())
+           VALUES ($1, $2, $3, $4, NOW())
            RETURNING *`,
           [roomId, socket.data.user.id, `${socket.data.user.name || '用户'} 加入了房间`, 'SYSTEM']
         );
@@ -105,7 +105,7 @@ export function registerRoomHandlers(io: Server, query: QueryFunction) {
 
         // Remove participant
         await query(
-          'DELETE FROM "TeaPartyRoomParticipant" WHERE "roomId" =  AND "userId" = ',
+          'DELETE FROM "TeaPartyRoomParticipant" WHERE "roomId" = $1 AND "userId" = $2',
           [roomId, socket.data.user.id]
         );
 
@@ -118,7 +118,7 @@ export function registerRoomHandlers(io: Server, query: QueryFunction) {
         // Create system message
         const systemMsgResult = await query(
           `INSERT INTO "Message" ("roomId", "userId", "content", "type", "createdAt")
-           VALUES (, , , , NOW())
+           VALUES ($1, $2, $3, $4, NOW())
            RETURNING *`,
           [roomId, socket.data.user.id, `${socket.data.user.name || '用户'} 离开了房间`, 'SYSTEM']
         );
