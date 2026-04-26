@@ -4,17 +4,30 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
+
+  const handleOAuthSignIn = async (provider: string) => {
+    setOauthLoading(provider);
+    try {
+      await signIn(provider, { callbackUrl: '/' });
+    } catch (err) {
+      setError('OAuth 登录失败');
+      setOauthLoading(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +62,28 @@ export default function SignInPage() {
           <CardDescription>登录到 Scholar&apos;s Tea</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* OAuth Providers */}
+          <div className="space-y-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => handleOAuthSignIn('github')}
+              disabled={!!oauthLoading}
+            >
+              {oauthLoading === 'github' ? (
+                '跳转中...'
+              ) : (
+                <>
+                  <Github className="mr-2 h-4 w-4" />
+                  使用 GitHub 登录
+                </>
+              )}
+            </Button>
+          </div>
+
+          <Separator className="my-4" />
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">

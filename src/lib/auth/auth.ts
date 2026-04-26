@@ -1,9 +1,13 @@
 import { NextAuthOptions } from 'next-auth';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/db/prisma';
+import { getOAuthProviders } from './providers';
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
+    ...getOAuthProviders(),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -15,26 +19,12 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // For demo purposes, we use a simple approach
-        // In production, you should use proper password hashing (bcrypt)
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email as string },
         });
 
         if (!user) {
-          // Create user if not exists (for demo)
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.email.split('@')[0],
-            },
-          });
-
-          return {
-            id: newUser.id,
-            email: newUser.email,
-            name: newUser.name,
-          };
+          return null;
         }
 
         return {
@@ -47,7 +37,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
     signIn: '/auth/signin',
