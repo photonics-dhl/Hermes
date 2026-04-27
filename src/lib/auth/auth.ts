@@ -3,6 +3,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/db/prisma';
 import { getOAuthProviders } from './providers';
+import { verifyPassword } from './password';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -15,7 +16,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email) {
+        if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
@@ -24,6 +25,17 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
+          return null;
+        }
+
+        // If user has a password hash, verify it
+        if (user.passwordHash) {
+          const isValid = await verifyPassword(credentials.password, user.passwordHash);
+          if (!isValid) {
+            return null;
+          }
+        } else {
+          // User exists but has no password (OAuth only user)
           return null;
         }
 

@@ -29,9 +29,19 @@ export default function SignUpPage() {
     setError('');
 
     try {
-      // For demo, we just redirect to signin
-      // In production, you would call an API to create the user
-      router.push('/signin');
+      const res = await fetch('/api/v1/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        router.push('/signin?registered=1');
+      } else {
+        setError(data.error?.message || '注册失败');
+      }
     } catch (err) {
       setError('注册失败');
     } finally {
