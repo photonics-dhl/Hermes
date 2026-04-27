@@ -108,7 +108,7 @@ export async function searchKnowledgeBase(
     const validResults: SearchResult[] = [];
 
     for (const doc of documents) {
-      const emb = doc.embedding as number[] | null;
+      const emb = typeof doc.embedding === 'string' ? JSON.parse(doc.embedding) : doc.embedding;
       if (!emb || !Array.isArray(emb)) continue;
 
       const similarity = cosineSimilarity(embedding, emb);
@@ -160,8 +160,8 @@ export async function addToKnowledgeBase(params: {
         sourceId: params.sourceId,
         discipline: params.discipline,
         authorId: params.authorId,
-        metadata: params.metadata as Prisma.InputJsonValue | undefined,
-        embedding: embedding as unknown as Prisma.InputJsonValue,
+        metadata: params.metadata as unknown as string | undefined,
+        embedding: JSON.stringify(embedding),
       },
     });
 
@@ -202,8 +202,8 @@ export async function saveResearchMemory(params: {
         userId: params.userId,
         relatedPaper: params.relatedPaper,
         tags: params.tags || [],
-        metadata: params.metadata as Prisma.InputJsonValue | undefined,
-        embedding: embedding as unknown as Prisma.InputJsonValue,
+        metadata: params.metadata as unknown as string | undefined,
+        embedding: JSON.stringify(embedding),
       },
     });
 
@@ -255,7 +255,7 @@ export async function searchMemories(
     const validResults: SearchResult[] = [];
 
     for (const mem of memories) {
-      const emb = mem.embedding as number[] | null;
+      const emb = typeof mem.embedding === 'string' ? JSON.parse(mem.embedding) : mem.embedding;
       if (!emb || !Array.isArray(emb)) continue;
 
       const similarity = cosineSimilarity(embedding, emb);

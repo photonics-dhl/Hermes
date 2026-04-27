@@ -526,8 +526,8 @@ model KnowledgeDocument {
   sourceId    String?  //关联的源记录ID
   discipline  String?  //学科领域
   authorId    String?
-  embedding   Json?    // OpenAI text-embedding-3-small embeddings array
-  metadata    Json?    // 额外元数据
+  embedding   String?   // OpenAI text-embedding-3-small embeddings array (stored as JSON text)
+  metadata    String?   // 额外元数据 (stored as JSON text)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -541,12 +541,12 @@ model ResearchMemory {
   title       String
   content     String   @db.Text
   summary     String?  @db.Text
-  embedding   Json     // OpenAI text-embedding-3-small embeddings array
+  embedding   String   // OpenAI text-embedding-3-small embeddings array (stored as JSON text)
   discipline  String?
   userId      String?
   relatedPaper String?
   tags        String[]
-  metadata    Json?
+  metadata    String?   // 额外元数据 (stored as JSON text)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
