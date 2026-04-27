@@ -23,14 +23,15 @@ export function getOAuthProviders(): AnyProvider[] {
     }));
   }
 
-  // Feishu (Lark) OAuth
-  if (process.env.FEISHU_CLIENT_ID && process.env.FEISHU_CLIENT_SECRET) {
-    const { default: FeishuProvider } = require('next-auth/providers/Feishu');
-    providers.push(FeishuProvider({
-      clientId: process.env.FEISHU_CLIENT_ID,
-      clientSecret: process.env.FEISHU_CLIENT_SECRET,
-    }));
-  }
+  // Feishu (Lark) OAuth - Requires @next-auth/providers/lark package
+  // For now, Feishu bot integration is separate from OAuth
+  // if (process.env.FEISHU_CLIENT_ID && process.env.FEISHU_CLIENT_SECRET) {
+  //   const { default: FeishuProvider } = require('next-auth/providers/Feishu');
+  //   providers.push(FeishuProvider({
+  //     clientId: process.env.FEISHU_CLIENT_ID,
+  //     clientSecret: process.env.FEISHU_CLIENT_SECRET,
+  //   }));
+  // }
 
   return providers;
 }
@@ -44,9 +45,10 @@ export function getEnabledProviderNames(): OAuthProviderType[] {
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     enabled.push('google');
   }
-  if (process.env.FEISHU_CLIENT_ID && process.env.FEISHU_CLIENT_SECRET) {
-    enabled.push('feishu');
-  }
+  // Feishu OAuth temporarily disabled - no built-in provider
+  // if (process.env.FEISHU_CLIENT_ID && process.env.FEISHU_CLIENT_SECRET) {
+  //   enabled.push('feishu');
+  // }
 
   return enabled;
 }
