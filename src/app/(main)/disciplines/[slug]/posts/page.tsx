@@ -1,8 +1,8 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { MessageSquare, Eye, ChevronRight, Pin, Lock, Flame, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -69,12 +69,9 @@ interface DisciplineResponse {
   data: DisciplineInfo;
 }
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export default function DisciplinePostsPage({ params }: PageProps) {
-  const { slug } = use(params);
+export default function DisciplinePostsPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [disciplineName, setDisciplineName] = useState('');

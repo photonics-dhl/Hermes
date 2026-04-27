@@ -1,8 +1,8 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ChevronRight, Users, FileText, BookOpen, MessageSquare, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -78,12 +78,9 @@ interface Post {
   };
 }
 
-interface DisciplinePageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export default function DisciplineDetailPage({ params }: DisciplinePageProps) {
-  const { slug } = use(params);
+export default function DisciplineDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
   const router = useRouter();
   const [discipline, setDiscipline] = useState<Discipline | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);

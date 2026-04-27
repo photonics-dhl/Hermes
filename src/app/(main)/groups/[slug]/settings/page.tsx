@@ -1,7 +1,7 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,18 +29,15 @@ import {
 } from '@/components/ui/select';
 import type { GroupWithRelations } from '@/types';
 
-interface GroupSettingsPageProps {
-  params: Promise<{ slug: string }>;
-}
-
 const roleLabels = {
   LEADER: '负责人',
   ADVISOR: '顾问',
   MEMBER: '成员',
 };
 
-export default function GroupSettingsPage({ params }: GroupSettingsPageProps) {
-  const { slug } = use(params);
+export default function GroupSettingsPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
   const router = useRouter();
   const [group, setGroup] = useState<GroupWithRelations | null>(null);
   const [loading, setLoading] = useState(true);

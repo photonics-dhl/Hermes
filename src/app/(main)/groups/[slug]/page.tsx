@@ -1,7 +1,7 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { GroupHeader } from '@/components/features/groups/GroupHeader';
 import { GroupMemberList } from '@/components/features/groups/GroupMemberList';
 import { PublicationsList } from '@/components/features/groups/PublicationsList';
@@ -13,12 +13,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Newspaper, Award, Users, Settings } from 'lucide-react';
 import type { GroupWithRelations } from '@/types';
 
-interface GroupDetailPageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export default function GroupDetailPage({ params }: GroupDetailPageProps) {
-  const { slug } = use(params);
+export default function GroupDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
   const router = useRouter();
   const [group, setGroup] = useState<GroupWithRelations | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,8 +1,8 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import {
   ChevronRight,
   ArrowUp,
@@ -87,8 +87,10 @@ interface PageProps {
   params: Promise<{ slug: string; postId: string }>;
 }
 
-export default function PostDetailPage({ params }: PageProps) {
-  const { slug, postId } = use(params);
+export default function PostDetailPage() {
+  const params = useParams<{ slug: string; postId: string }>();
+  const slug = params.slug;
+  const postId = params.postId;
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
