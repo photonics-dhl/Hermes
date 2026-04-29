@@ -43,11 +43,84 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // ===== Scholar's Tea 双轨配色系统 =====
+        // 学术区 (顶刊风格)
+        journal: {
+          DEFAULT: 'var(--journal-primary)',
+          primary: 'var(--journal-primary)',
+          'primary-foreground': 'var(--journal-primary-foreground)',
+          gold: 'var(--journal-gold)',
+          'gold-foreground': 'var(--journal-gold-foreground)',
+          border: 'var(--journal-border)',
+          'border-hover': 'var(--journal-border-hover)',
+        },
+        // 交流区 (年轻活力)
+        tea: {
+          DEFAULT: 'var(--tea-primary)',
+          primary: 'var(--tea-primary)',
+          'primary-foreground': 'var(--tea-primary-foreground)',
+          accent: 'var(--tea-accent)',
+          'accent-foreground': 'var(--tea-accent-foreground)',
+          bg: 'var(--tea-bg)',
+          mint: 'var(--tea-mint)',
+        },
+        // 对话系统
+        convo: {
+          blue: 'var(--convo-blue)',
+          'blue-foreground': 'var(--convo-blue-foreground)',
+          blush: 'var(--convo-blush)',
+          'blush-foreground': 'var(--convo-blush-foreground)',
+        },
+      },
+      fontFamily: {
+        // 学术标题字体 - Crimson Pro (serif)
+        serif: ['Crimson Pro', 'Georgia', 'serif'],
+        // 正文字体 - Source Serif 4 (serif)
+        'source-serif': ['"Source Serif 4"', 'Georgia', 'serif'],
+        // 界面字体 - Inter (sans-serif)
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        // 等宽字体 - JetBrains Mono
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      animation: {
+        shimmer: 'shimmer 1.5s infinite linear',
+        'fade-in-up': 'fadeInUp 0.4s ease-out forwards',
+        'bounce-in': 'bounceIn 0.5s ease-out forwards',
+        typing: 'typingBounce 1.2s infinite ease-in-out',
+        'slide-in-right': 'slideInRight 0.3s ease-out forwards',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        fadeInUp: {
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        bounceIn: {
+          '0%': { transform: 'scale(0.3)', opacity: '0' },
+          '50%': { transform: 'scale(1.05)' },
+          '70%': { transform: 'scale(0.9)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        typingBounce: {
+          '0%, 60%, 100%': { transform: 'translateY(0)' },
+          '30%': { transform: 'translateY(-4px)' },
+        },
+        slideInRight: {
+          from: { opacity: '0', transform: 'translateX(20px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
+      transitionTimingFunction: {
+        'bounce-in': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
     },
   },

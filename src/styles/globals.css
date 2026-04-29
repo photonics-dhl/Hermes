@@ -2,29 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Scholar's Tea 双轨设计系统 ===== */
+
 @layer base {
   :root {
+    /* ===== 原有 CSS 变量 (保持兼容) ===== */
     --background: 0 0% 100%;
     --foreground: 20 14.3% 17.7%;
     --card: 0 0% 100%;
     --card-foreground: 20 14.3% 17.7%;
     --popover: 0 0% 100%;
     --popover-foreground: 20 14.3% 17.7%;
-    /* Tea-inspired primary: warm amber/ochre instead of generic blue */
+    /* Tea-inspired primary: warm amber/ochre */
     --primary: 25 85% 51.8%;
     --primary-foreground: 45 30% 96%;
-    --secondary: 30 15% 94%;
+    --secondary: 30 10% 94%;
     --secondary-foreground: 20 14.3% 17.7%;
     --muted: 30 10% 96%;
     --muted-foreground: 20 8% 41%;
-    --accent: 30 15% 94%;
-    --accent-foreground: 20 14.3% 17.7%;
+    --accent: 25 85% 51.8%;
+    --accent-foreground: 45 30% 96%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 45 30% 96%;
     --border: 30 10% 88%;
     --input: 30 10% 88%;
     --ring: 25 85% 51.8%;
     --radius: 0.5rem;
+
+    /* ===== 双轨配色系统 - 学术区 (顶刊风格) ===== */
+    --journal-primary: #1A5F5C;
+    --journal-primary-foreground: #FEFEFE;
+    --journal-gold: #D4A853;
+    --journal-gold-foreground: #1A1A1A;
+    --journal-border: #E8E8E8;
+    --journal-border-hover: #D4A853;
+
+    /* ===== 双轨配色系统 - 交流区 (年轻活力) ===== */
+    --tea-primary: #6AB894;
+    --tea-primary-foreground: #FEFEFE;
+    --tea-accent: #E8924A;
+    --tea-accent-foreground: #FEFEFE;
+    --tea-bg: #F9F6F0;
+    --tea-mint: #7BC4A8;
+
+    /* ===== 对话系统 ===== */
+    --convo-blue: #6BA3D6;
+    --convo-blue-foreground: #FEFEFE;
+    --convo-blush: #E8A0A0;
+    --convo-blush-foreground: #1A1A1A;
+
+    /* ===== 通用 ===== */
+    --paper-white: #FEFEFE;
+    --cool-gray: #F4F5F7;
   }
 
   .dark {
@@ -34,7 +63,6 @@
     --card-foreground: 45 30% 96%;
     --popover: 20 14.3% 11%;
     --popover-foreground: 45 30% 96%;
-    /* Warm amber for dark mode too */
     --primary: 25 95% 65%;
     --primary-foreground: 20 14.3% 8.7%;
     --secondary: 20 14.3% 17%;
@@ -48,6 +76,28 @@
     --border: 20 14.3% 20%;
     --input: 20 14.3% 20%;
     --ring: 25 95% 65%;
+
+    /* Dark mode - 学术区 */
+    --journal-primary: #2A7F78;
+    --journal-primary-foreground: #FEFEFE;
+    --journal-gold: #E8B866;
+    --journal-gold-foreground: #1A1A1A;
+    --journal-border: #3A3A3A;
+    --journal-border-hover: #E8B866;
+
+    /* Dark mode - 交流区 */
+    --tea-primary: #7BC4A8;
+    --tea-primary-foreground: #1A1A1A;
+    --tea-accent: #F0A060;
+    --tea-accent-foreground: #1A1A1A;
+    --tea-bg: #2A2520;
+    --tea-mint: #8DD4B8;
+
+    /* Dark mode - 对话系统 */
+    --convo-blue: #6BA3D6;
+    --convo-blue-foreground: #1A1A1A;
+    --convo-blush: #E8A0A0;
+    --convo-blush-foreground: #1A1A1A;
   }
 }
 
@@ -58,4 +108,141 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ===== Scholar's Tea 动画 Keyframes ===== */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ===== 入场动画工具类 ===== */
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.5s ease-out forwards;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--muted) / 0.5) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.animate-typing-bounce {
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+/* Stagger 动画延迟 */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* ===== 滚动条美化 ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--journal-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #CBCBCB;
+}
+
+/* ===== 选中文本颜色 ===== */
+::selection {
+  background-color: hsl(var(--journal-primary) / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* ===== Focus Visible ===== */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* ===== 平滑滚动 ===== */
+html {
+  scroll-behavior: smooth;
 }

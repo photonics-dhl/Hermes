@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils/cn';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]',
   {
     variants: {
       variant: {
@@ -13,12 +13,19 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
+        // Scholar's Tea variants
+        journal: 'bg-journal-primary text-journal-primary-foreground hover:bg-journal-primary/90',
+        'journal-outline': 'border-2 border-journal-primary text-journal-primary hover:bg-journal-primary hover:text-journal-primary-foreground',
+        tea: 'bg-tea-primary text-tea-primary-foreground hover:bg-tea-primary/90',
+        'tea-outline': 'border-2 border-tea-primary text-tea-primary hover:bg-tea-primary hover:text-tea-primary-foreground',
+        gold: 'bg-journal-gold text-journal-gold-foreground hover:bg-journal-gold/90',
       },
       size: {
         default: 'h-10 px-4 py-2',
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
         icon: 'h-10 w-10',
+        xs: 'h-7 rounded px-2 text-xs',
       },
     },
     defaultVariants: {

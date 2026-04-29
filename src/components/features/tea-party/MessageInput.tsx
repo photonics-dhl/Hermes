@@ -22,7 +22,6 @@ export function MessageInput({ onSend, onTyping, disabled }: MessageInputProps) 
     onSend(content.trim());
     setContent('');
 
-    // Clear typing state
     if (isTypingRef.current) {
       isTypingRef.current = false;
       onTyping(false);
@@ -32,13 +31,11 @@ export function MessageInput({ onSend, onTyping, disabled }: MessageInputProps) 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
 
-    // Handle typing indicator
     if (!isTypingRef.current) {
       isTypingRef.current = true;
       onTyping(true);
     }
 
-    // Reset typing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
@@ -55,7 +52,6 @@ export function MessageInput({ onSend, onTyping, disabled }: MessageInputProps) 
     }
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (typingTimeoutRef.current) {
@@ -68,7 +64,7 @@ export function MessageInput({ onSend, onTyping, disabled }: MessageInputProps) 
   }, [onTyping]);
 
   return (
-    <div className="border-t p-4">
+    <div className="border-t border-journal-border p-4 bg-paper-white">
       <div className="flex gap-2 items-end">
         <textarea
           value={content}
@@ -79,10 +75,10 @@ export function MessageInput({ onSend, onTyping, disabled }: MessageInputProps) 
           maxLength={500}
           rows={1}
           className={cn(
-            'flex-1 resize-none rounded-lg border px-3 py-2 text-sm',
-            'focus:outline-none focus:ring-2 focus:ring-ring',
+            'flex-1 resize-none rounded-lg border border-journal-border bg-tea-bg px-4 py-3 text-sm font-source-serif',
+            'focus:outline-none focus:ring-2 focus:ring-tea-primary focus:border-tea-primary',
             'disabled:opacity-50 disabled:cursor-not-allowed',
-            'min-h-[40px] max-h-[120px]'
+            'min-h-[44px] max-h-[120px] transition-all duration-200'
           )}
           style={{
             height: 'auto',
@@ -99,11 +95,13 @@ export function MessageInput({ onSend, onTyping, disabled }: MessageInputProps) 
           size="icon"
           onClick={handleSend}
           disabled={!content.trim() || disabled}
+          variant="tea"
+          className="h-11 w-11 flex-shrink-0 transition-transform active:scale-95"
         >
           <Send className="w-4 h-4" />
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground mt-1">
+      <p className="text-xs text-muted-foreground mt-1 font-sans">
         {content.length}/500
       </p>
     </div>
