@@ -53,7 +53,7 @@ export function MessageList({ messages, typingUsers, roomId }: MessageListProps)
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
+      className="flex-1 overflow-y-auto px-4 py-4 gap-4"
     >
       {messages.map((message) => (
         <MessageItem key={message.id} message={message} />

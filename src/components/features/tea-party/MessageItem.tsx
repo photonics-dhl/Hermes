@@ -39,7 +39,7 @@ export function MessageItem({ message, isOwn }: MessageItemProps) {
       {/* Avatar */}
       <div
         className={cn(
-          'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium shadow-sm',
+          'flex-shrink-0 size-8 rounded-full flex items-center justify-center text-sm font-medium shadow-sm',
           isOwn ? 'bg-tea-primary text-tea-primary-foreground' : 'bg-journal-primary text-journal-primary-foreground'
         )}
       >

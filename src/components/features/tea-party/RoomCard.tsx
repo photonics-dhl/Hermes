@@ -50,12 +50,12 @@ export function RoomCard({ room }: RoomCardProps) {
 
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
-          <Users className="w-4 h-4" />
+          <Users className="size-4" />
           {room.participantCount} / {room.maxParticipants}
           {isFull && <span className="text-destructive ml-1">(已满)</span>}
         </span>
         <span className="flex items-center gap-1">
-          <MessageSquare className="w-4 h-4" />
+          <MessageSquare className="size-4" />
           {room.messageCount}
         </span>
       </div>

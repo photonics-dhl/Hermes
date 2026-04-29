@@ -78,7 +78,7 @@ export function MainNav() {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end">
                 <div className="flex items-center justify-start gap-2 p-2">
-                  <div className="flex flex-col space-y-1 leading-none">
+                  <div className="flex flex-col gap-1 leading-none">
                     {session.user.name && (
                       <p className="font-medium text-sm">{session.user.name}</p>
                     )}

@@ -96,9 +96,9 @@ export function MessageInput({ onSend, onTyping, disabled }: MessageInputProps) 
           onClick={handleSend}
           disabled={!content.trim() || disabled}
           variant="tea"
-          className="h-11 w-11 flex-shrink-0 transition-transform active:scale-95"
+          className="size-11 flex-shrink-0 transition-transform active:scale-95"
         >
-          <Send className="w-4 h-4" />
+          <Send className="size-4" />
         </Button>
       </div>
       <p className="text-xs text-muted-foreground mt-1 font-sans">

@@ -96,7 +96,7 @@ export default function TeaPartyPage() {
           </p>
         </div>
         <Button onClick={() => setShowCreate(true)}>
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="size-4 mr-2" />
           创建房间
         </Button>
       </div>
@@ -104,7 +104,7 @@ export default function TeaPartyPage() {
       {/* Search */}
       <form onSubmit={handleSearch} className="flex gap-4 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="搜索房间..."
@@ -121,7 +121,7 @@ export default function TeaPartyPage() {
       {/* Stats */}
       <div className="flex gap-6 mb-6 text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
-          <MessageSquare className="w-4 h-4" />
+          <MessageSquare className="size-4" />
           共 {total} 个房间
         </span>
       </div>
@@ -138,13 +138,13 @@ export default function TeaPartyPage() {
         </div>
       ) : rooms.length === 0 ? (
         <div className="text-center py-12">
-          <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <MessageSquare className="size-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">暂无房间</h3>
           <p className="text-muted-foreground mb-4">
             成为第一个创建茶话会房间的人
           </p>
           <Button onClick={() => setShowCreate(true)}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="size-4 mr-2" />
             创建房间
           </Button>
         </div>

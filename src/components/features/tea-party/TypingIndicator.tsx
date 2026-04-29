@@ -30,9 +30,9 @@ export function TypingIndicator({ users }: TypingIndicatorProps) {
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground px-3 py-2">
       <div className="flex gap-1">
-        <span className="w-2 h-2 rounded-full bg-tea-primary animate-typing-bounce" style={{ animationDelay: '0ms' }} />
-        <span className="w-2 h-2 rounded-full bg-tea-primary animate-typing-bounce" style={{ animationDelay: '200ms' }} />
-        <span className="w-2 h-2 rounded-full bg-tea-primary animate-typing-bounce" style={{ animationDelay: '400ms' }} />
+        <span className="size-2 rounded-full bg-tea-primary animate-typing-bounce" style={{ animationDelay: '0ms' }} />
+        <span className="size-2 rounded-full bg-tea-primary animate-typing-bounce" style={{ animationDelay: '200ms' }} />
+        <span className="size-2 rounded-full bg-tea-primary animate-typing-bounce" style={{ animationDelay: '400ms' }} />
       </div>
       <span className="font-sans">{text}</span>
     </div>

@@ -28,7 +28,7 @@ function MessageSkeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
   return (
     <div className={cn('flex gap-3', className)} {...props}>
       <Skeleton variant="shimmer" className="h-8 w-8 rounded-full flex-shrink-0" />
-      <div className="flex-1 space-y-2">
+      <div className="flex-1 flex flex-col gap-2">
         <Skeleton variant="shimmer" className="h-4 w-32" />
         <Skeleton variant="shimmer" className="h-16 w-full" />
       </div>
@@ -39,10 +39,10 @@ function MessageSkeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
 // Card skeleton for content cards
 function CardSkeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('rounded-lg border bg-card p-5 space-y-3', className)} {...props}>
+    <div className={cn('rounded-lg border bg-card p-5 flex flex-col gap-3', className)} {...props}>
       <div className="flex gap-3">
         <Skeleton variant="shimmer" className="h-9 w-9 rounded-lg" />
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 flex flex-col gap-2">
           <Skeleton variant="shimmer" className="h-5 w-3/4" />
           <Skeleton variant="shimmer" className="h-4 w-1/2" />
         </div>

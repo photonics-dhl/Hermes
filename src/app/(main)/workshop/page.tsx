@@ -108,11 +108,11 @@ export default function WorkshopPage() {
       <Card className="flex-1 flex flex-col overflow-hidden">
         <CardContent className="flex-1 flex flex-col p-0">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 gap-4">
             {messages.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center text-center p-8">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Sparkles className="h-8 w-8 text-primary" />
+                <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Sparkles className="size-8 text-primary" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">欢迎来到思想工坊</h2>
                 <p className="text-muted-foreground max-w-md mb-6">
@@ -144,7 +144,7 @@ export default function WorkshopPage() {
                 }`}
               >
                 {/* Avatar */}
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                <div className={`flex-shrink-0 size-8 rounded-full flex items-center justify-center ${
                   message.role === 'user'
                     ? 'bg-primary/10'
                     : 'bg-muted'
@@ -180,8 +180,8 @@ export default function WorkshopPage() {
             {/* Loading indicator */}
             {loading && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-muted-foreground" />
+                <div className="size-8 rounded-full bg-muted flex items-center justify-center">
+                  <Bot className="size-4 text-muted-foreground" />
                 </div>
                 <div className="flex-1">
                   <div className="bg-muted rounded-lg px-4 py-3 inline-block">
@@ -197,8 +197,8 @@ export default function WorkshopPage() {
             {/* Error */}
             {error && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-muted-foreground" />
+                <div className="size-8 rounded-full bg-muted flex items-center justify-center">
+                  <Bot className="size-4 text-muted-foreground" />
                 </div>
                 <div className="flex-1">
                   <div className="bg-destructive/10 text-destructive rounded-lg px-4 py-3 inline-block">

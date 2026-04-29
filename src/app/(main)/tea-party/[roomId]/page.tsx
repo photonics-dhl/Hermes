@@ -167,7 +167,7 @@ export default function TeaPartyRoomPage() {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-200px)]">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="size-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">加载中...</p>
         </div>
       </div>
@@ -193,7 +193,7 @@ export default function TeaPartyRoomPage() {
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => router.push('/tea-party')}>
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="size-5" />
             </Button>
             <div>
               <h1 className="text-xl font-semibold">{room.name}</h1>
@@ -208,7 +208,7 @@ export default function TeaPartyRoomPage() {
               size="sm"
               onClick={() => setShowUsers(!showUsers)}
             >
-              <Users className="w-4 h-4 mr-2" />
+              <Users className="size-4 mr-2" />
               {room.participantCount}
             </Button>
           </div>

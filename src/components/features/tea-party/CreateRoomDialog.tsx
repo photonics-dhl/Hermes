@@ -66,8 +66,8 @@ export function CreateRoomDialog({ open, onOpenChange, onSuccess }: CreateRoomDi
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="name">房间名称 *</Label>
               <Input
                 id="name"
@@ -78,7 +78,7 @@ export function CreateRoomDialog({ open, onOpenChange, onSuccess }: CreateRoomDi
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="description">房间描述</Label>
               <textarea
                 id="description"
@@ -90,7 +90,7 @@ export function CreateRoomDialog({ open, onOpenChange, onSuccess }: CreateRoomDi
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="maxParticipants">最大参与人数</Label>
               <Input
                 id="maxParticipants"

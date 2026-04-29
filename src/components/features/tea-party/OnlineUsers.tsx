@@ -21,7 +21,7 @@ export function OnlineUsers({ users, onClose }: OnlineUsersProps) {
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <h3 className="font-medium">在线用户 ({users.length})</h3>
         <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-4 h-4" />
+          <X className="size-4" />
         </Button>
       </div>
 
@@ -32,10 +32,10 @@ export function OnlineUsers({ users, onClose }: OnlineUsersProps) {
             暂无在线用户
           </p>
         ) : (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {users.map((user) => (
               <div key={user.id} className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
+                <div className="size-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
                   {user.name?.[0] || '?'}
                 </div>
                 <span className="text-sm truncate">
