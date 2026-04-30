@@ -20,9 +20,9 @@ interface Discipline {
   children?: Discipline[];
 }
 
-function DisciplineCard({ discipline }: { discipline: Discipline }) {
+function DisciplineCard({ discipline, animationDelay = 0 }: { discipline: Discipline; animationDelay?: number }) {
   return (
-    <Card className="group hover:shadow-md transition-all duration-200 overflow-hidden">
+    <Card className="group hover:shadow-md transition-all duration-200 overflow-hidden animate-fade-in-up" style={{ animationDelay: `${animationDelay}ms` }}>
       <CardContent className="p-0">
         {/* Header */}
         <div className="p-5 border-b bg-gradient-to-r from-primary/5 to-transparent">
@@ -32,7 +32,7 @@ function DisciplineCard({ discipline }: { discipline: Discipline }) {
               className="flex-1 min-w-0 group/title"
             >
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 group-hover/title:bg-primary/20 transition-colors">
+                <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 group-hover/title:bg-primary/20 transition-colors">
                   <BookOpen className="h-4 w-4 text-primary" />
                 </div>
                 <h2 className="text-lg font-semibold truncate group-hover/title:text-primary transition-colors">
@@ -124,7 +124,7 @@ export default function DisciplinesPage() {
     <div className="container mx-auto py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">学科社区</h1>
+        <h1 className="text-3xl font-serif font-bold tracking-tight">学科社区</h1>
         <p className="mt-2 text-muted-foreground">
           探索不同学科领域，与学者们交流思想 · 共{' '}
           <span className="font-medium text-foreground">{disciplines.length}</span>{' '}
@@ -135,8 +135,8 @@ export default function DisciplinesPage() {
       {/* Disciplines Grid */}
       {disciplines.length > 0 ? (
         <div className="grid gap-4">
-          {disciplines.map((discipline) => (
-            <DisciplineCard key={discipline.id} discipline={discipline} />
+          {disciplines.map((discipline, index) => (
+            <DisciplineCard key={discipline.id} discipline={discipline} animationDelay={index * 100} />
           ))}
         </div>
       ) : (

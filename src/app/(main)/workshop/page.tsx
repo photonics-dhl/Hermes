@@ -163,7 +163,7 @@ export default function WorkshopPage() {
                   <div className={`rounded-lg px-4 py-3 inline-block text-left ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                      : 'bg-convo-blue text-convo-blue-foreground'
                   }`}>
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                   </div>

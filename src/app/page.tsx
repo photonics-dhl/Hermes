@@ -56,10 +56,10 @@ export default function HomePage() {
   }, []);
 
   const quickAccessItems = [
-    { href: '/disciplines', icon: GraduationCap, title: '学科社区', desc: '探索不同学科领域，与学者们交流思想', color: 'from-blue-500/10 to-blue-500/5' },
-    { href: '/groups', icon: Users, title: '课题组', desc: '发现并加入优秀的研究团队', color: 'from-emerald-500/10 to-emerald-500/5' },
-    { href: '/tea-party', icon: MessageCircle, title: '茶话会', desc: '加入实时聊天室，与研究者交流', color: 'from-amber-500/10 to-amber-500/5' },
-    { href: '/workshop', icon: Sparkles, title: '思想工坊', desc: '与 AI 助手讨论学术问题', color: 'from-purple-500/10 to-purple-500/5' },
+    { href: '/disciplines', icon: GraduationCap, title: '学科社区', desc: '探索不同学科领域，与学者们交流思想', color: 'from-journal-primary/10 to-journal-primary/5' },
+    { href: '/groups', icon: Users, title: '课题组', desc: '发现并加入优秀的研究团队', color: 'from-tea-primary/10 to-tea-primary/5' },
+    { href: '/tea-party', icon: MessageCircle, title: '茶话会', desc: '加入实时聊天室，与研究者交流', color: 'from-journal-gold/10 to-journal-gold/5' },
+    { href: '/workshop', icon: Sparkles, title: '思想工坊', desc: '与 AI 助手讨论学术问题', color: 'from-convo-blue/10 to-convo-blue/5' },
   ];
 
   return (
@@ -73,9 +73,9 @@ export default function HomePage() {
               <Sparkles className="h-3.5 w-3.5 mr-1.5 text-primary" />
               高校学术交流社区
             </Badge>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold tracking-tight mb-6">
               学者茶话会
-              <span className="block text-2xl md:text-3xl lg:text-4xl font-normal text-muted-foreground mt-2">
+              <span className="block text-2xl md:text-3xl lg:text-4xl font-normal text-muted-foreground mt-2 font-sans">
                 Scholar&apos;s Tea
               </span>
             </h1>
@@ -120,21 +120,21 @@ export default function HomePage() {
                   <div className="text-sm text-muted-foreground mt-1">课题组</div>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-card to-blue-500/5 border-blue-500/20">
+              <Card className="bg-gradient-to-br from-card to-journal-primary/5 border-journal-primary/20">
                 <CardContent className="p-4 md:p-6 text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-blue-600">{stats?.publications || 0}</div>
+                  <div className="text-3xl md:text-4xl font-bold text-journal-primary">{stats?.publications || 0}</div>
                   <div className="text-sm text-muted-foreground mt-1">发表论文</div>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-card to-amber-500/5 border-amber-500/20">
+              <Card className="bg-gradient-to-br from-card to-journal-gold/5 border-journal-gold/20">
                 <CardContent className="p-4 md:p-6 text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-amber-600">{stats?.posts || 0}</div>
+                  <div className="text-3xl md:text-4xl font-bold text-journal-gold">{stats?.posts || 0}</div>
                   <div className="text-sm text-muted-foreground mt-1">讨论帖子</div>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-card to-emerald-500/5 border-emerald-500/20">
+              <Card className="bg-gradient-to-br from-card to-tea-primary/5 border-tea-primary/20">
                 <CardContent className="p-4 md:p-6 text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-emerald-600">{stats?.users || 0}</div>
+                  <div className="text-3xl md:text-4xl font-bold text-tea-primary">{stats?.users || 0}</div>
                   <div className="text-sm text-muted-foreground mt-1">注册用户</div>
                 </CardContent>
               </Card>
@@ -145,7 +145,7 @@ export default function HomePage() {
 
       {/* Quick Access - Icon Grid */}
       <section className="container mx-auto px-4 py-16">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+        <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-primary" />
           快速入口
         </h2>
@@ -177,7 +177,7 @@ export default function HomePage() {
       {featuredGroups.length > 0 && (
         <section className="container mx-auto px-4 pb-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+            <h2 className="text-2xl font-serif font-bold flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               优秀课题组
             </h2>
@@ -219,7 +219,7 @@ export default function HomePage() {
       {disciplines.length > 0 && (
         <section className="container mx-auto px-4 pb-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+            <h2 className="text-2xl font-serif font-bold flex items-center gap-2">
               <Globe className="h-5 w-5 text-primary" />
               热门学科
             </h2>
