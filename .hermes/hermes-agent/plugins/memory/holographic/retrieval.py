@@ -338,32 +338,50 @@ class FactRetriever:
             query = " ".join(entities)
             return self.search(query, category=category, limit=limit)
 
-        # Stage 2: FTS5 + Jaccard re-ranking (replaces flawed FHRR similarity)
-        # Problem: FHRR probe uses entity text, but encode_fact uses content text - mismatch!
-        # For multi-entity (AND) query, score by how well fact content matches entities
-        all_entity_tokens = set()
-        for e in entities:
-            all_entity_tokens.update(self._tokenize(e))
+        # Stage 2: Embedding similarity (Phase 2.5 upgrade)
+        # Get combined embedding for all entities
+        try:
+            combined_text = " ".join(entities)
+            entity_emb = get_embedding(combined_text)
+        except Exception:
+            # Fallback to FTS5 if embedding fails
+            all_entity_tokens = set()
+            for e in entities:
+                all_entity_tokens.update(self._tokenize(e))
+            scored = []
+            for row in rows:
+                fact = dict(row)
+                fact.pop("hrr_vector", None)
+                content_tokens = self._tokenize(fact["content"])
+                tag_tokens = self._tokenize(fact.get("tags", ""))
+                all_tokens = content_tokens | tag_tokens
+                jaccard = self._jaccard_similarity(all_entity_tokens, all_tokens)
+                fts_score = 0.8 if all_entity_tokens & all_tokens else 0.2
+                relevance = 0.5 * fts_score + 0.5 * jaccard
+                fact["score"] = relevance * fact["trust_score"]
+                scored.append(fact)
+            scored.sort(key=lambda x: x["score"], reverse=True)
+            return scored[:limit]
 
         scored = []
         for row in rows:
             fact = dict(row)
             fact.pop("hrr_vector", None)
-
-            content_tokens = self._tokenize(fact["content"])
-            tag_tokens = self._tokenize(fact.get("tags", ""))
-            all_tokens = content_tokens | tag_tokens
-
-            jaccard = self._jaccard_similarity(all_entity_tokens, all_tokens)
-            fts_score = 0.8 if all_entity_tokens & all_tokens else 0.2
-            relevance = 0.5 * fts_score + 0.5 * jaccard
-            fact["score"] = relevance * fact["trust_score"]
+            emb = fact.get("embedding")
+            if not emb:
+                fact["score"] = 0.0
+                scored.append(fact)
+                continue
+            try:
+                fact_emb = json.loads(emb)
+                sim = cosine_similarity(entity_emb, fact_emb)
+                fact["score"] = (sim + 1.0) / 2.0 * fact["trust_score"]
+            except Exception:
+                fact["score"] = 0.0
             scored.append(fact)
 
         scored.sort(key=lambda x: x["score"], reverse=True)
-        results = scored[:limit]
-
-        return results
+        return scored[:limit]
 
     def contradict(
         self,
@@ -438,13 +456,18 @@ class FactRetriever:
                 if entity_overlap < 0.3:
                     continue
 
-                v1 = hrr.bytes_to_phases(f1["hrr_vector"])
-                v2 = hrr.bytes_to_phases(f2["hrr_vector"])
-
-                if hasattr(hrr, 'similarity_fhr'):
-                    content_sim = hrr.similarity_fhr(v1, v2)
+                # Use embedding similarity
+                emb1 = f1.get("embedding")
+                emb2 = f2.get("embedding")
+                if emb1 and emb2:
+                    try:
+                        v1 = json.loads(emb1)
+                        v2 = json.loads(emb2)
+                        content_sim = cosine_similarity(v1, v2)
+                    except Exception:
+                        content_sim = 0.0
                 else:
-                    content_sim = hrr.similarity(v1, v2)
+                    content_sim = 0.0
 
                 contradiction_score = entity_overlap * (1.0 - (content_sim + 1.0) / 2.0)
 
