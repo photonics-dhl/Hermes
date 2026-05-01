@@ -367,8 +367,9 @@ class FactRetriever:
         conn = self.store._conn
 
         params: list = []
+        where = ""
         if category:
-            where += " AND f.category = ?"
+            where = "WHERE f.category = ?"
             params.append(category)
 
         rows = conn.execute(
