@@ -320,46 +320,31 @@ class FactRetriever:
             query = " ".join(entities)
             return self.search(query, category=category, limit=limit)
 
-        # Stage 2: Score by FHRR content similarity (average across entities)
-        role_content = hrr.encode_atom("__hrr_role_content__", self.hrr_dim)
+        # Stage 2: FTS5 + Jaccard re-ranking (replaces flawed FHRR similarity)
+        # Problem: FHRR probe uses entity text, but encode_fact uses content text - mismatch!
+        # For multi-entity (AND) query, score by how well fact content matches entities
+        all_entity_tokens = set()
+        for e in entities:
+            all_entity_tokens.update(self._tokenize(e))
 
         scored = []
         for row in rows:
             fact = dict(row)
-            fact_vec = hrr.bytes_to_phases(fact.pop("hrr_vector"))
+            fact.pop("hrr_vector", None)
 
-            entity_sims = []
-            for entity_lower in entities_lower:
-                if hasattr(hrr, 'bind_fhr'):
-                    probe_key = hrr.bind_fhr(
-                        hrr.encode_atom(entity_lower, self.hrr_dim),
-                        hrr.encode_atom("__hrr_role_entity__", self.hrr_dim)
-                    )
-                    residual = hrr.unbind_fhr(fact_vec, probe_key)
-                    sim = hrr.similarity_fhr(residual, hrr.bind_fhr(
-                        hrr.encode_text(fact["content"], self.hrr_dim), role_content
-                    ))
-                else:
-                    probe_key = hrr.bind(
-                        hrr.encode_atom(entity_lower, self.hrr_dim),
-                        hrr.encode_atom("__hrr_role_entity__", self.hrr_dim)
-                    )
-                    residual = hrr.unbind(fact_vec, probe_key)
-                    sim = hrr.similarity(residual, hrr.bind(
-                        hrr.encode_text(fact["content"], self.hrr_dim), role_content
-                    ))
-                entity_sims.append(sim)
+            content_tokens = self._tokenize(fact["content"])
+            tag_tokens = self._tokenize(fact.get("tags", ""))
+            all_tokens = content_tokens | tag_tokens
 
-            # Use mean similarity across entities (softer than min)
-            avg_sim = sum(entity_sims) / len(entity_sims)
-            fact["score"] = (avg_sim + 1.0) / 2.0 * fact["trust_score"]
+            jaccard = self._jaccard_similarity(all_entity_tokens, all_tokens)
+            fts_score = 0.8 if all_entity_tokens & all_tokens else 0.2
+            relevance = 0.5 * fts_score + 0.5 * jaccard
+            fact["score"] = relevance * fact["trust_score"]
             scored.append(fact)
 
         scored.sort(key=lambda x: x["score"], reverse=True)
         results = scored[:limit]
 
-        for fact in results:
-            fact.pop("hrr_vector", None)
         return results
 
     def contradict(
