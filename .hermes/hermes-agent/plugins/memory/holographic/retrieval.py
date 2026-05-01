@@ -24,6 +24,31 @@ except ImportError:
     import holographic as hrr  # type: ignore[no-redef]
 
 
+
+import json, subprocess
+import urllib.parse
+
+_ZCHAT_API_KEY = "sk-uK1cqmlDbsRaUyNS2lkcUGC6FRewPLUZ7GWbEvjrhDMzM6Rf"
+_ZCHAT_BASE_URL = "https://api.zchat.tech/v1"
+
+def get_embedding(text, model="text-embedding-3-small"):
+    import urllib.parse
+    t = urllib.parse.quote(text)[:8000]
+    jd = '{"model": "'+model+'", "input": "'+t+'"}'
+    cmd = ["curl", "-s", _ZCHAT_BASE_URL+"/embeddings",
+           "-H", "Authorization: Bearer "+_ZCHAT_API_KEY,
+           "-H", "Content-Type: application/json",
+           "-d", jd]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    if r.returncode != 0: raise RuntimeError("Curl failed")
+    return json.loads(r.stdout)["data"][0]["embedding"]
+
+def cosine_similarity(a, b):
+    dot = sum(x*y for x,y in zip(a,b))
+    na = sum(x*x for x in a)**0.5
+    nb = sum(x*x for x in b)**0.5
+    return dot/(na*nb) if na and nb else 0.0
+
 class FactRetriever:
     """Multi-strategy fact retrieval with trust-weighted scoring."""
 
@@ -170,38 +195,31 @@ class FactRetriever:
             # Final fallback: keyword search
             return self.search(entity, category=category, limit=limit)
 
-        # Stage 2: FTS5 + Jaccard re-ranking (replaces flawed FHRR similarity)
-        # Old approach: content_probe = bind(encode_text(entity), role_content)
-        # Problem: encode_fact uses CONTENT text, not entity text - mismatch!
+        # Stage 2: Embedding similarity (Phase 2.5 upgrade)
+        # Uses zchat text-embedding-3-small for semantic matching
+        try:
+            entity_emb = get_embedding(entity)
+        except Exception:
+            return self.search(entity, category=category, limit=limit)
 
-        fact_ids = [row["fact_id"] for row in rows]
-        placeholders = ",".join("?" for _ in fact_ids)
-        full_sql = (
-            "SELECT f.fact_id, f.content, f.category, f.tags," + "\n" +
-            "       f.trust_score, f.retrieval_count, f.helpful_count," + "\n" +
-            "       f.created_at, f.updated_at, f.hrr_vector" + "\n" +
-            "FROM facts f WHERE f.fact_id IN (%s)" % placeholders)
-        full_rows = conn.execute(full_sql, fact_ids).fetchall()
-
-        query_tokens = self._tokenize(entity)
         scored = []
-        for row in full_rows:
+        for row in rows:
             fact = dict(row)
-            content_tokens = self._tokenize(fact["content"])
-            tag_tokens = self._tokenize(fact.get("tags", ""))
-            all_tokens = content_tokens | tag_tokens
-            jaccard = self._jaccard_similarity(query_tokens, all_tokens)
-            fts_score = 0.8 if query_tokens & all_tokens else 0.2
-            relevance = 0.5 * fts_score + 0.5 * jaccard
-            fact["score"] = relevance * fact["trust_score"]
+            fact.pop("hrr_vector", None)
+            emb = fact.get("embedding")
+            if not emb:
+                fact["score"] = 0.0
+                scored.append(fact)
+                continue
+            try:
+                sim = cosine_similarity(entity_emb, json.loads(emb))
+            except:
+                sim = 0.0
+            fact["score"] = (sim + 1.0) / 2.0 * fact["trust_score"]
             scored.append(fact)
 
         scored.sort(key=lambda x: x["score"], reverse=True)
-        results = scored[:limit]
-
-        for fact in results:
-            fact.pop("hrr_vector", None)
-        return results
+        return scored[:limit]
 
     def related(
         self,
