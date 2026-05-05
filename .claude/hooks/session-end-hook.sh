@@ -2,6 +2,7 @@
 # Session end hook - session summary, cleanup, and memory reminder
 
 SESSION_DIR=".claude/sessions"
+mkdir -p "$SESSION_DIR"
 CURRENT_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 
 # Create session summary

@@ -1,5 +1,19 @@
 # Scholar's Tea - Claude Code 项目配置
 
+## Compact Instructions
+
+> 每次 Session 启动时优先执行以下指令：
+
+1. **Session 长度控制**：轮数 > 20 / 时间 > 30min / Input > 5M → 立即 `/compact`
+2. **大文件处理**：禁止直接 `Read` >200 行文件；优先用 `Agent` 探索或 `Grep` 提取
+3. **缓存保护**：Session 中禁止修改 `CLAUDE.md`、`.claudeignore`、`settings.json`
+4. **MCP 精简**：当前 9 个服务器，禁止添加新服务器除非移除旧的
+5. **环境变量保护**：禁止修改 `.env` 文件；API key 仅通过 env 获取
+6. **验证 gates**：API 任务 → `npm run lint && npm run typecheck`；DB 任务 → `npx prisma validate`
+7. **记忆写入**：工具 Bug → memory | SOP → skills | 项目事实 → CLAUDE.md
+
+---
+
 ## 项目概览
 
 - **名称**: Scholar's Tea (学者茶话会)
