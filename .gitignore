@@ -53,3 +53,7 @@ logs/
 # Claude Code local settings (contain credentials)
 .claude/settings.local.json
 settings.local.json
+
+# Kimi CLI local sessions and overrides
+.kimi/sessions/
+.kimi/*.local.toml
