@@ -1,0 +1,59 @@
+{
+  "updated_at": "2026-05-01T22:37:36.191331",
+  "platforms": {
+    "telegram": [],
+    "discord": [],
+    "whatsapp": [],
+    "slack": [],
+    "signal": [],
+    "mattermost": [],
+    "matrix": [],
+    "homeassistant": [],
+    "email": [],
+    "sms": [],
+    "dingtalk": [],
+    "feishu": [
+      {
+        "id": "oc_4c05763dd5c2edc78a09eee8b452c2a8",
+        "name": "oc_4c05763dd5c2edc78a09eee8b452c2a8",
+        "type": "dm",
+        "thread_id": null
+      },
+      {
+        "id": "oc_2d22074e060c703dc02fe08dcba4a672",
+        "name": "Daily",
+        "type": "group",
+        "thread_id": null
+      },
+      {
+        "id": "oc_55620d9bbbf72625cf6d7892f6187665",
+        "name": "oc_55620d9bbbf72625cf6d7892f6187665",
+        "type": "dm",
+        "thread_id": null
+      },
+      {
+        "id": "oc_6172e7ce838d85f4928d6ee707203b60",
+        "name": "Optical scholar's tea party",
+        "type": "group",
+        "thread_id": null
+      },
+      {
+        "id": "oc_e7930d06b52382cfbc1a8ca2e5d7b5d6",
+        "name": "Planner",
+        "type": "group",
+        "thread_id": null
+      },
+      {
+        "id": "oc_2e0552ea050a43aa956a68578b17fafe",
+        "name": "oc_2e0552ea050a43aa956a68578b17fafe",
+        "type": "dm",
+        "thread_id": null
+      }
+    ],
+    "wecom": [],
+    "wecom_callback": [],
+    "weixin": [],
+    "bluebubbles": [],
+    "qqbot": []
+  }
+}
